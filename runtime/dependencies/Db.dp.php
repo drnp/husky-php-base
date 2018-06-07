@@ -47,6 +47,8 @@ $dp_Db = function($c) {
     return $conn;
 };
 
+return $dp_Db;
+
 /**
  * @file runtime/dependencies/Db.dp.php
  * @package Husky/php/base

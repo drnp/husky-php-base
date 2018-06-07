@@ -29,11 +29,65 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+function _cache_driver_redis($config)
+{
+    $redis = new \Redis();
+    $redis->connect(
+        \V($config, 'host', 'localhost'),
+        \V($config, 'port', 6379)
+    );
+    if ($redis)
+    {
+        $auth = \V($config, 'auth');
+        $db = \V($config, 'db');
+        if ($auth)
+        {
+            $redis->auth($auth);
+        }
+
+        $redis->select(\intval($db));
+    }
+
+    $cache = new \Doctrine\Common\Cache\RedisCache();
+    $cache->setRedis($redis);
+
+    return $cache;
+}
+
+function _cache_driver_apc($config)
+{
+    $cache = new \Doctrine\Common\Cache\ApcCache();
+
+    return $cache;
+}
+
+function _cache_driver_memcached($config)
+{
+    $mc = new \Memcached();
+    $mc->addServer(
+        \V($config, 'host', 'localhost'),
+        \V($config, 'port', 11211)
+    );
+
+    $cache = new \Doctrine\Common\Cache\MemcachedCache();
+    $cache->setMemcached($mc);
+
+    return $cache;
+}
+
 $dp_Cache = function($c) {
     // Doctrine cache
     try
     {
+        $config = $c->get('settings')['runtime']['dependencies']['Cache'];
+        $driver = \V($config, 'driver');
+        $ins_func = '_cache_driver_' . $driver;
+        if (!\function_exists($ins_func))
+        {
+            die('Cache driver <' . $driver . '> does not exists');
+        }
 
+        $cache = $ins_func($config);
     }
     catch (\Exception $e)
     {
@@ -42,6 +96,8 @@ $dp_Cache = function($c) {
 
     return $cache;
 };
+
+return $dp_Cache;
 
 /**
  * @file runtime/dependencies/Cache.dp.php

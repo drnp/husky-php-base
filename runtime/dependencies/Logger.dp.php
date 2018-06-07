@@ -33,7 +33,7 @@ $dp_Logger = function($c) {
     // Monolog
     try
     {
-        $logger = new \Monolog\Logger($app_name);
+        $logger = new \Monolog\Logger($c->get('settings')['app']['name']);
         $logger->pushProcessor(new \Monolog\Processor\UidProcessor);
         $logger->pushHandler(new \Monolog\Handler\RotatingFileHandler(
             $c->get('settings')['runtime']['dependencies']['logger']['path'],
@@ -48,6 +48,8 @@ $dp_Logger = function($c) {
 
     return $logger;
 };
+
+return $dp_Logger;
 
 /**
  * @file runtime/dependencies/logger.dp.php

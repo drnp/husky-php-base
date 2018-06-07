@@ -15,16 +15,10 @@ return [
         'name' => 'Husky.App',
         'enable_ssl' => false,
         'base_url' => 'localhost',
+        'enable_debug' => false,
     ],
     'runtime' => [
         'dependencies' => [
-            'Logger' => [
-            ],
-            'Cache' => [
-                'driver' => 'redis',
-                'host' => 'localhost',
-                'port' => 6379,
-            ],
         ],
         'middlewares' => [
             'Authorization' => [

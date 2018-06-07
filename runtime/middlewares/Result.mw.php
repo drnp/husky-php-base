@@ -107,8 +107,8 @@ $mw_Result = function(Request $request, Response $response, $next) use ($contain
     switch ($container->get('result_content_type'))
     {
         case 'application/x-msgpack' :
-            //$body = \msgpack_encode($result);
-            //break;
+            $body = \msgpack_encode($result);
+            break;
         case 'application/x-php' :
             $body = \serialize($result);
             break;

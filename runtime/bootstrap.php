@@ -88,11 +88,10 @@ foreach ($settings_dependencies as $dependency => $c)
     if (\is_string($dependency))
     {
         $file = __DIR__ . '/dependencies/' . $dependency . '.dp.php';
-        $fn = 'dp_' . $dependency;
         if (\file_exists($file))
         {
-            require $file;
-            $container[$dependency] = $$fn;
+            $fn = require $file;
+            $container[$dependency] = $fn;
         }
     }
 }
@@ -112,7 +111,32 @@ foreach ($settings_middlewares as $middleware => $c)
     }
 }
 
-//\var_dump($app);
+// Common routes
+if ($settings['app']['enable_debug'])
+{
+    $app->get('/settings', function($request, $response) {
+        $this['result'] = $this->get('settings')->all();
+
+        return $response;
+    })->setName('Debug::Settings');
+
+    $app->get('/routes', function($request, $response) {
+        $routes = $this->get('router')->getRoutes();
+        $res = [];
+        foreach ($routes as $route)
+        {
+            $res[] = [
+                'name' => $route->getName(),
+                'methods' => $route->getMethods(),
+                'pattern' => $route->getPattern(),
+                'arguments' => $route->getArguments()
+            ];
+        }
+        $this['result'] = $res;
+        return $response;
+    })->setName('Debug::RoutesList');
+}
+
 return $app;
 
 /*
