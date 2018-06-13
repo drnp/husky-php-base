@@ -3,7 +3,10 @@
 class HuskyResult
 {
     const OK = 0;
-    const UNKNOWN = 65535;
+    const ROUTE_NOT_FOUND = 32767;
+    const METHOD_NOT_ALLOWED = 32768;
+    const INTERNAL_ERROR = 65535;
+    const UNKNOWN = 65536;
 
     const HTTP_AUTHORIZATION_FAILED = 100;
     const HTTP_AUTHORIZATION_NEED = 101;

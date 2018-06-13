@@ -41,7 +41,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 $mw_Version = function(Request $request, Response $response, $next) use ($container) {
-    $config = $container->get('settings')['runtime']['middlewares']['Cors'];
+    $config = $container->get('settings')['runtime']['middlewares']['Version'];
     $version = $request->getHeader('X-Husky-Version');
     $default_version = \V($config, 'default_version');
     $container['api_version'] = ($version) ? \trim($version) : $default_version;

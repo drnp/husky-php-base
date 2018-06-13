@@ -137,6 +137,44 @@ if ($settings['app']['enable_debug'])
     })->setName('Debug::RoutesList');
 }
 
+// Error handlers
+$container['notFoundHandler'] = function($c) {
+    return function($request, $response) use ($c) {
+        $c['result_code'] = \HuskyResult::ROUTE_NOT_FOUND;
+        $c['result_http_code'] = 404;
+        $c['result_message'] = 'Route not found';
+        $c['result_links'] = [
+            'Routes' => '/routes'
+        ];
+
+        return $response;
+    };
+};
+
+$container['notAllowedHandler'] = function($c) {
+    return function($request, $response) use ($c) {
+        $c['result_code'] = \HuskyResult::METHOD_NOT_ALLOWED;
+        $c['result_http_code'] = 405;
+        $c['result_message'] = 'Method not allowed';
+        $c['result_links'] = [
+            'Routes' => '/routes'
+        ];
+
+        return $response;
+    };
+};
+
+$container['phpErrorHandler'] = function($c) {
+    return function($request, $response, $error) use ($c) {
+        $c['result_code'] = \HuskyResult::INTERNAL_ERROR;
+        $c['result_http_code'] = 500;
+        $c['result_message'] = 'Internal error';
+        $c['result'] = $error;
+
+        return $response;
+    };
+};
+
 return $app;
 
 /*

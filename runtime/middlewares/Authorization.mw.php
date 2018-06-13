@@ -57,7 +57,7 @@ $mw_Authorization = function(Request $request, Response $response, $next) use ($
         }
 
         list($method, $value) = $parts;
-        switch ($method)
+        switch (\strtolower($method))
         {
             case 'basic' :
                 // U / P basic authorization

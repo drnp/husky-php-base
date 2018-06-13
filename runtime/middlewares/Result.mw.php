@@ -96,6 +96,7 @@ $mw_Result = function(Request $request, Response $response, $next) use ($contain
             'linkes' => $container->get('result_links'),
             'cached' => $container->get('result_cached'),
             'timestamp' => \time(),
+            'version' => $container->get('api_version'),
             'data' => $container->get('result'),
         ];
     }
