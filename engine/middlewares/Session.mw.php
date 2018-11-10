@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/middlewares/UserAgent.mw.php
+ * engine/middlewares/Session.mw.php
  *
  * Copyright (C) 2016 Dr.NP <np@bsgroup.org>
  *
@@ -30,19 +30,29 @@
  */
 
 /**
- * @file runtime/middlewares/UserAgent.mw.php
+ * @file engine/middlewares/Session.mw.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
- * @since 05/30/2018
+ * @since 11/03/2018
  * @version 0.0.1
  */
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-$mw_UserAgent = function(Request $request, Response $response, $next) {
+$mw_Session = function(Request $request, Response $response, $next) use ($container) {
+    \session_start();
+
+    // +++ NEXT +++
+    $response = $next($request, $response);
+    // --- NEXT ---
+
+    \session_write_close();
+
     return $response;
 };
+
+return $mw_Session;
 
 /*
  * Local variables:

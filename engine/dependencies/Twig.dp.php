@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/dependencies/Logger.dp.php
+ * runtime/dependencies/Twig.dp.php
  *
  * Copyright (C) 2016 Dr.NP <np@bsgroup.org>
  *
@@ -29,32 +29,37 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-$dp_Logger = function($c) {
-    // Monolog
-    try
-    {
-        $logger = new \Monolog\Logger($c->get('settings')['app']['name']);
-        $logger->pushProcessor(new \Monolog\Processor\UidProcessor);
-        $logger->pushHandler(new \Monolog\Handler\RotatingFileHandler(
-            $c->get('settings')['runtime']['dependencies']['logger']['path'],
-            0,
-            \Monolog\Logger::DEBUG
-        ));
-    }
-    catch (\Exception $e)
-    {
-        die('Monolog error : ' . $e->getMessage());
-    }
-
-    return $logger;
-};
-
-return $dp_Logger;
-
 /**
- * @file runtime/dependencies/logger.dp.php
+ * @file runtime/dependencies/Twig.dp.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
  * @since 06/04/2018
  * @version 0.0.1
+ */
+
+$dp_Twig = function($c) {
+    // Twig
+    try
+    {
+        $config = $c->get('settings')['runtime']['dependencies']['Twig'];
+        $loader = new Twig_Loader_Filesystem(\V($config, 'template_path'));
+        $twig = new Twig_Environment($loader, \v($config, 'enviroment', []));
+    }
+    catch (\Exception $e)
+    {
+        die('Twig error : ' . $e->getMessage());
+    }
+
+    return $twig;
+};
+
+return $dp_Twig;
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: sw=4 ts=4 fdm=marker
+ * vim<600: sw=4 ts=4
  */

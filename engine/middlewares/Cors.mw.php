@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/utils/pagination.php
+ * engine/middlewares/Cors.mw.php
  *
  * Copyright (C) 2018 Dr.NP <np@bsgroup.org>
  *
@@ -30,12 +30,42 @@
  */
 
 /**
- * @file runtime/utils/pagination.php
+ * @file engine/middlewares/Cors.mw.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
- * @since 05/30/2018
+ * @since 06/05/2018
  * @version 0.0.1
  */
+
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
+$mw_Cors = function(Request $request, Response $response, $next) use ($container) {
+    $config = $container->get('settings')['runtime']['middlewares']['Cors'];
+
+    // +++ NEXT +++
+    $response = $next($request, $response);
+    // --- NEXT ---
+
+    if ($request->isOptions())
+    {
+        // CORS options
+        $access_headers = $request->getHeader('Access-Control-Request-Headers');
+        if ($access_headers)
+        {
+            $response = $options
+                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+                ->withHeader('Access-Control-Allow-Headers', $access_headers)
+                ->withHeader('Access-Control-Max-Age', '86400');
+        }
+    }
+
+    $response = $response->withHeader('Access-Control-Allow-Origin', '*');
+
+    return $response;
+};
+
+return $mw_Cors;
 
 /*
  * Local variables:

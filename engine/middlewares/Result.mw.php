@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/middlewares/Result.mw.php
+ * engine/middlewares/Result.mw.php
  *
  * Copyright (C) 2018 Dr.NP <np@bsgroup.org>
  *
@@ -30,7 +30,7 @@
  */
 
 /**
- * @file runtime/middlewares/Result.mw.php
+ * @file engine/middlewares/Result.mw.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
  * @since 05/30/2018
@@ -54,6 +54,7 @@ $mw_Result = function(Request $request, Response $response, $next) use ($contain
     {
         $named[] = $result_content_type_user;
     }
+
     $ct = $request->getContentType();
     if (\is_array($ct) && isset($ct[0]) && \is_string($ct[0]))
     {
@@ -86,7 +87,7 @@ $mw_Result = function(Request $request, Response $response, $next) use ($contain
         // Binary data
         $result = $container->get('result_binary');
     }
-    elseif ($enable_envelope)
+    elseif ($enable_envelope && $container->get('result_raw') == false)
     {
         // Render envelope
         $result = [
@@ -114,9 +115,10 @@ $mw_Result = function(Request $request, Response $response, $next) use ($contain
             $body = \serialize($result);
             break;
         case 'application/json' :
-        default :
             $body = \json_encode($result, \JSON_PRETTY_PRINT);
             break;
+        default :
+            $body = \is_string($result) ? $result : \json_encode($result, \JSON_PRETTY_PRINT);
     }
 
     // Test JsonP

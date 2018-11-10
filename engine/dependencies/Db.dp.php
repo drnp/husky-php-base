@@ -1,8 +1,8 @@
 <?php
 /*
- * runtime/middlewares/Version.mw.php
+ * engine/dependencies/Db.dp.php
  *
- * Copyright (C) 2018 Dr.NP <np@bsgroup.org>
+ * Copyright (C) 2016 Dr.NP <np@bsgroup.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,30 +30,30 @@
  */
 
 /**
- * @file runtime/middlewares/Version.mw.php
+ * @file engine/dependencies/Db.dp.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
- * @since 06/06/2018
+ * @since 06/04/2018
  * @version 0.0.1
  */
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
+$dp_Db = function($c) {
+    // Doctrine DBAL
+    try
+    {
+        $config = new \Doctrine\DBAL\Configuration();
+        $params = $c->get('settings')['runtime']['dependencies']['Db'];
+        $conn = \Doctrine\DBAL\DriverManager::getConnection($params, $config);
+    }
+    catch (\Exception $e)
+    {
+        die('Doctrine DBAL error : ' . $e->getMessage());
+    }
 
-$mw_Version = function(Request $request, Response $response, $next) use ($container) {
-    $config = $container->get('settings')['runtime']['middlewares']['Version'];
-    $version = $request->getHeader('X-Husky-Version');
-    $default_version = \V($config, 'default_version');
-    $container['api_version'] = ($version) ? \trim($version) : $default_version;
-
-    // +++ NEXT +++
-    $response = $next($request, $response);
-    // --- NEXT ---
-
-    return $response;
+    return $conn;
 };
 
-return $mw_Version;
+return $dp_Db;
 
 /*
  * Local variables:

@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/middlewares/Authorization.mw.php
+ * engine/middlewares/Authorization.mw.php
  *
  * Copyright (C) 2016 Dr.NP <np@bsgroup.org>
  *
@@ -30,7 +30,7 @@
  */
 
 /**
- * @file runtime/middlewares/Authorization.mw.php
+ * @file engine/middlewares/Authorization.mw.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
  * @since 05/30/2018

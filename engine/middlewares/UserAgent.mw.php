@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/dependencies/Cache.dp.php
+ * engine/middlewares/UserAgent.mw.php
  *
  * Copyright (C) 2016 Dr.NP <np@bsgroup.org>
  *
@@ -29,80 +29,26 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-function _cache_driver_redis($config)
-{
-    $redis = new \Redis();
-    $redis->connect(
-        \V($config, 'host', 'localhost'),
-        \V($config, 'port', 6379)
-    );
-    if ($redis)
-    {
-        $auth = \V($config, 'auth');
-        $db = \V($config, 'db');
-        if ($auth)
-        {
-            $redis->auth($auth);
-        }
-
-        $redis->select(\intval($db));
-    }
-
-    $cache = new \Doctrine\Common\Cache\RedisCache();
-    $cache->setRedis($redis);
-
-    return $cache;
-}
-
-function _cache_driver_apc($config)
-{
-    $cache = new \Doctrine\Common\Cache\ApcCache();
-
-    return $cache;
-}
-
-function _cache_driver_memcached($config)
-{
-    $mc = new \Memcached();
-    $mc->addServer(
-        \V($config, 'host', 'localhost'),
-        \V($config, 'port', 11211)
-    );
-
-    $cache = new \Doctrine\Common\Cache\MemcachedCache();
-    $cache->setMemcached($mc);
-
-    return $cache;
-}
-
-$dp_Cache = function($c) {
-    // Doctrine cache
-    try
-    {
-        $config = $c->get('settings')['runtime']['dependencies']['Cache'];
-        $driver = \V($config, 'driver');
-        $ins_func = '_cache_driver_' . $driver;
-        if (!\function_exists($ins_func))
-        {
-            die('Cache driver <' . $driver . '> does not exists');
-        }
-
-        $cache = $ins_func($config);
-    }
-    catch (\Exception $e)
-    {
-        die('Doctrine cache error : ' . $e->getMessage());
-    }
-
-    return $cache;
-};
-
-return $dp_Cache;
-
 /**
- * @file runtime/dependencies/Cache.dp.php
+ * @file engine/middlewares/UserAgent.mw.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
- * @since 06/04/2018
+ * @since 05/30/2018
  * @version 0.0.1
+ */
+
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
+$mw_UserAgent = function(Request $request, Response $response, $next) {
+    return $response;
+};
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim600: sw=4 ts=4 fdm=marker
+ * vim<600: sw=4 ts=4
  */

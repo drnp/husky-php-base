@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/utils/misc.php
+ * engine/utils/misc.php
  *
  * Copyright (C) 2018 Dr.NP <np@bsgroup.org>
  *
@@ -30,7 +30,7 @@
  */
 
 /**
- * @file runtime/utils/misc.php
+ * @file engine/utils/misc.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
  * @since 05/30/2018
@@ -125,7 +125,21 @@ function M(array &$array1, array &$array2)
 /* {{{ [utils::misc::F] */
 function F(array $array, array $template)
 {
+    $ret = [];
+    foreach ($template as $key => $must)
+    {
+        $v = \V($array, $key, null);
+        if ($must)
+        {
+            $ret[$key] = $v ? $v : $must;
+        }
+        elseif ($v)
+        {
+            $ret[$key] = $v;
+        }
+    }
 
+    return $ret;
 }
 
 /* }}} */

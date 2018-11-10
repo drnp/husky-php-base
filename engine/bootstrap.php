@@ -1,6 +1,6 @@
 <?php
 /*
- * runtime/bootstrap.php
+ * engine/bootstrap.php
  *
  * Copyright (C) 2018 Dr.NP <np@bsgroup.org>
  *
@@ -30,7 +30,7 @@
  */
 
 /**
- * @file runtime/bootstrap.php
+ * @file engine/bootstrap.php
  * @package Husky/php/base
  * @author Dr.NP <np@bsgroup.org>
  * @since 05/30/2018
@@ -65,6 +65,7 @@ if (isset($$sub_settings) && \is_array($$sub_settings))
 $app = new \Slim\App(['settings' => $settings]);
 $container = $app->getContainer();
 $container['result'] = [];
+$container['result_raw'] = false;
 $container['result_binary'] = null;
 $container['result_content_type'] = \DEFAULT_CONTENT_TYPE;
 $container['result_code'] = \HuskyResult::OK;
@@ -80,9 +81,16 @@ $container['http_auth_status'] = \HuskyAuth::NO_NEED;
 $container['api_version'] = null;
 
 $app_name = \trim($settings['app']['name']);
+$container['app_name'] = $app_name;
+$container['runtime'] = [];
+$container['default_404_page'] = null;
+
+// Awesome here ...
+\gc_disable();
 
 // Dependencies
 $settings_dependencies = $settings['runtime']['dependencies'];
+$ds = [];
 foreach ($settings_dependencies as $dependency => $c)
 {
     if (\is_string($dependency))
@@ -92,12 +100,14 @@ foreach ($settings_dependencies as $dependency => $c)
         {
             $fn = require $file;
             $container[$dependency] = $fn;
+            $ds[$dependency] = true;
         }
     }
 }
 
 // Load middlewares
 $settings_middlewares = $settings['runtime']['middlewares'];
+$ms = [];
 foreach ($settings_middlewares as $middleware => $c)
 {
     if (\is_string($middleware))
@@ -106,21 +116,30 @@ foreach ($settings_middlewares as $middleware => $c)
         if (\file_exists($file))
         {
             $fn = require $file;
-            $app->add($fn);
+            if (\is_callable($fn))
+            {
+                $app->add($fn);
+                $ms[$middleware] = true;
+            }
         }
     }
 }
 
+$container['runtime'] = [
+    'dependencies' => $ds,
+    'middlewares' => $ms
+];
+
 // Common routes
 if ($settings['app']['enable_debug'])
 {
-    $app->get('/settings', function($request, $response) {
+    $app->get('/debug:settings', function($request, $response) {
         $this['result'] = $this->get('settings')->all();
 
         return $response;
     })->setName('Debug::Settings');
 
-    $app->get('/routes', function($request, $response) {
+    $app->get('/debug:routes', function($request, $response) {
         $routes = $this->get('router')->getRoutes();
         $res = [];
         foreach ($routes as $route)
@@ -135,17 +154,35 @@ if ($settings['app']['enable_debug'])
         $this['result'] = $res;
         return $response;
     })->setName('Debug::RoutesList');
+
+    $app->get('/debug:dependencies', function($request, $response) {
+        $this['result'] = \V($this->get('runtime'), 'dependencies', []);
+        return $response;
+    })->setName('Debug::DependenciesList');
+
+    $app->get('/debug:middlewares', function($request, $response) {
+        $this['result'] = \V($this->get('runtime'), 'middlewares', []);
+        return $response;
+    })->setName('Debug::MiddlewaresList');
 }
 
 // Error handlers
 $container['notFoundHandler'] = function($c) {
     return function($request, $response) use ($c) {
+        if (\is_string($c['default_404_page']))
+        {
+            return $response->withRedirect($c['default_404_page'], 301);
+        }
+
         $c['result_code'] = \HuskyResult::ROUTE_NOT_FOUND;
         $c['result_http_code'] = 404;
         $c['result_message'] = 'Route not found';
-        $c['result_links'] = [
-            'Routes' => '/routes'
-        ];
+        if ($c->get('settings')['app']['enable_debug'])
+        {
+            $c['result_links'] = [
+                'Routes' => '/debug:routes'
+            ];
+        }
 
         return $response;
     };
@@ -156,9 +193,12 @@ $container['notAllowedHandler'] = function($c) {
         $c['result_code'] = \HuskyResult::METHOD_NOT_ALLOWED;
         $c['result_http_code'] = 405;
         $c['result_message'] = 'Method not allowed';
-        $c['result_links'] = [
-            'Routes' => '/routes'
-        ];
+        if ($c->get('settings')['app']['enable_debug'])
+        {
+            $c['result_links'] = [
+                'Routes' => '/debug:routes'
+            ];
+        }
 
         return $response;
     };
