@@ -44,6 +44,8 @@ $mw_UserAgent = function(Request $request, Response $response, $next) {
     return $response;
 };
 
+return $mw_UserAgent;
+
 /*
  * Local variables:
  * tab-width: 4

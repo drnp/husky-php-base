@@ -155,7 +155,7 @@ function F(array $array, array $template)
 /* {{{ [utils::misc::A] */
 function A(array $array, array $template)
 {
-
+    return true;
 }
 
 /* }}} */

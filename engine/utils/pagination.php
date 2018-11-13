@@ -37,6 +37,19 @@
  * @version 0.0.1
  */
 
+ /**
+  * Pagniation generator
+  *
+  * @return array Pagniation
+  */
+/* {{{ [P] */
+function P()
+{
+    return [];
+}
+
+/* }}} */
+
 /*
  * Local variables:
  * tab-width: 4

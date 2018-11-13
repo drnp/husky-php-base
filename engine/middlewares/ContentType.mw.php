@@ -44,6 +44,8 @@ $mv_ContentType = function(Request $request, Response $response, $next) {
     return $response;
 };
 
+return $mw_ContentType;
+
 /*
  * Local variables:
  * tab-width: 4
